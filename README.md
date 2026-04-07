@@ -73,17 +73,28 @@ docker build -t jshyunbin/pika-ros .
 
 ## Running the Container
 
+First, allow the container to connect to the host's X11 display (required for RViz):
+
+```bash
+xhost +local:docker
+```
+
+Then start the container:
+
 ```bash
 docker run -it --rm \
     --privileged \
     --network host \
     -v /dev:/dev \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$DISPLAY \
     -v $(pwd)/data:/home/agilex/data \
     jshyunbin/pika-ros
 ```
 
 - `--privileged` and `-v /dev:/dev` are required for USB device access (depth camera, fisheye camera, Vive receiver, serial port).
 - `--network host` allows ROS communication with nodes on the host or other machines.
+- `-v /tmp/.X11-unix:/tmp/.X11-unix` and `-e DISPLAY=$DISPLAY` forward the host display so RViz can render.
 - `-v $(pwd)/data:/home/agilex/data` mounts a local directory for saving collected datasets.
 
 ## Usage Workflow
