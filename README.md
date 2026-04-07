@@ -42,10 +42,16 @@ docker pull jshyunbin/pika-ros
 docker run --rm jshyunbin/pika-ros cat /etc/udev/rules.d/81-vive.rules \
     | sudo tee /etc/udev/rules.d/81-vive.rules
 
-# Reload udev rules
-sudo udevadm control --reload-rules && sudo udevadm trigger
+# Install the serial port udev rule (creates /dev/ttyUSB50 symlink for the Pika serial device)
+sudo sh -c 'echo "KERNEL==\"ttyUSB*\", ATTRS{idVendor}==\"1a86\", ATTRS{idProduct}==\"7522\", MODE:=\"0777\", SYMLINK+=\"ttyUSB50\"" > /etc/udev/rules.d/sensor_serial.rules'
 
-# Replug the USB wireless receiver after applying the rules
+# Install the fisheye camera udev rule (creates /dev/video50 symlink for the Pika fisheye camera)
+sudo sh -c 'echo "KERNEL==\"video*\", ATTRS{idVendor}==\"1bcf\", ATTRS{idProduct}==\"2cd1\", MODE:=\"0777\", SYMLINK+=\"video50\"" > /etc/udev/rules.d/sensor_fisheye.rules'
+
+# Reload udev rules
+sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
+
+# Replug all USB devices after applying the rules
 ```
 
 ## Getting the Image
