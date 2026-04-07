@@ -42,10 +42,16 @@ docker pull jshyunbin/pika-ros
 docker run --rm jshyunbin/pika-ros cat /etc/udev/rules.d/81-vive.rules \
     | sudo tee /etc/udev/rules.d/81-vive.rules
 
-# Reload udev rules
-sudo udevadm control --reload-rules && sudo udevadm trigger
+# Install the serial port udev rule (creates /dev/ttyUSB50 symlink for the Pika serial device)
+sudo sh -c 'echo "KERNEL==\"ttyUSB*\", ATTRS{idVendor}==\"1a86\", ATTRS{idProduct}==\"7522\", MODE:=\"0777\", SYMLINK+=\"ttyUSB50\"" > /etc/udev/rules.d/sensor_serial.rules'
 
-# Replug the USB wireless receiver after applying the rules
+# Install the fisheye camera udev rule (creates /dev/video50 symlink for the Pika fisheye camera)
+sudo sh -c 'echo "KERNEL==\"video*\", ATTRS{idVendor}==\"1bcf\", ATTRS{idProduct}==\"2cd1\", MODE:=\"0777\", SYMLINK+=\"video50\"" > /etc/udev/rules.d/sensor_fisheye.rules'
+
+# Reload udev rules
+sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
+
+# Replug all USB devices after applying the rules
 ```
 
 ## Getting the Image
@@ -67,17 +73,28 @@ docker build -t jshyunbin/pika-ros .
 
 ## Running the Container
 
+First, allow the container to connect to the host's X11 display (required for RViz):
+
+```bash
+xhost +local:docker
+```
+
+Then start the container:
+
 ```bash
 docker run -it --rm \
     --privileged \
     --network host \
     -v /dev:/dev \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$DISPLAY \
     -v $(pwd)/data:/home/agilex/data \
     jshyunbin/pika-ros
 ```
 
 - `--privileged` and `-v /dev:/dev` are required for USB device access (depth camera, fisheye camera, Vive receiver, serial port).
 - `--network host` allows ROS communication with nodes on the host or other machines.
+- `-v /tmp/.X11-unix:/tmp/.X11-unix` and `-e DISPLAY=$DISPLAY` forward the host display so RViz can render.
 - `-v $(pwd)/data:/home/agilex/data` mounts a local directory for saving collected datasets.
 
 ## Usage Workflow
@@ -110,7 +127,7 @@ rm ~/.config/libsurvive/config.json
 
 ```bash
 cd ~/pika_ros/install/share/sensor_tools/scripts/
-bash start_sensor.bash
+bash start_single_sensor.bash
 ```
 
 **Dual Pika (two grippers):**
