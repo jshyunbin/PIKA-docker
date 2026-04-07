@@ -31,6 +31,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     libopenvr-dev \
     unzip \
+    udev \
+    ros-noetic-cv-bridge \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install opencv-python
