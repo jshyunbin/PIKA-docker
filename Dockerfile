@@ -49,12 +49,11 @@ RUN mkdir -p /etc/udev/rules.d/ && cp /root/pika_ros/scripts/81-vive.rules /etc/
 WORKDIR /root/pika_ros/source
 RUN unzip librealsense-2.55.1.zip && tar -xzf curl-7.75.0.tar.gz
 
-# Fix the hard-coded path to curl in the librealsense CMake config
-RUN sed -i \
-    's|/home/agilex/pika_ros/source/curl-7.75.0|/root/pika_ros/source/curl-7.75.0|g' \
-    /root/pika_ros/source/librealsense-2.55.1/CMake/external_libcurl.cmake
 
-WORKDIR /root/pika_ros/source/librealsense-2.55.1
+WORKDIR /root/pika_ros/source/librealsense
+RUN sed -i \
+    's|URL "/home/agilex/curl-7.75.0"|URL "/root/pika_ros/source/curl-7.75.0"|g' \
+    CMake/external_libcurl.cmake
 RUN bash install.bash
 
 # Extract the pre-built pika_ros install tree (manual §2.4, step 6)
