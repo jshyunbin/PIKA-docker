@@ -110,7 +110,7 @@ rm ~/.config/libsurvive/config.json
 
 ```bash
 cd ~/pika_ros/install/share/sensor_tools/scripts/
-bash start_sensor.bash
+bash start_single_sensor.bash
 ```
 
 **Dual Pika (two grippers):**
