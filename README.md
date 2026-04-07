@@ -1,4 +1,10 @@
+<div align="center">
+
 # PIKA-docker
+
+[![Build and Push Docker Image](https://github.com/jshyunbin/PIKA-docker/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/jshyunbin/PIKA-docker/actions/workflows/docker-publish.yml)
+
+</div>
 
 A Dockerized distribution of the AgileX PIKA's ROS software stack. PIKA is a spatial data
 collection system for embodied intelligence research, consisting of:
