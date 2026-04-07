@@ -2,7 +2,9 @@
 
 # PIKA-docker
 
-[![Build and Push Docker Image](https://github.com/jshyunbin/PIKA-docker/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/jshyunbin/PIKA-docker/actions/workflows/docker-publish.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/jshyunbin/PIKA-docker/docker-publish.yml?label=CI)](https://github.com/jshyunbin/PIKA-docker/actions/workflows/docker-publish.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/jshyunbin/pika-ros)](https://hub.docker.com/r/jshyunbin/pika-ros)
+[![Docker Image Size](https://img.shields.io/docker/image-size/jshyunbin/pika-ros/latest)](https://hub.docker.com/r/jshyunbin/pika-ros)
 
 </div>
 
