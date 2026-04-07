@@ -14,8 +14,6 @@ collection system for embodied intelligence research, consisting of:
 | CPU | Intel i5 9th generation or above |
 | Storage | 1 TB or more |
 | USB ports | USB 3.0 × 3 (docking stations cannot be used) |
-| OS | Ubuntu 20.04 |
-| ROS | ROS1 Noetic |
 
 ## Prerequisites
 
