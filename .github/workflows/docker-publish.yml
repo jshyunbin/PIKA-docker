@@ -3,8 +3,14 @@ name: Build and Push Docker Image
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - '*.pdf'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - '*.pdf'
 
 jobs:
   build-and-push:
