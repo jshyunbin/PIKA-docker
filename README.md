@@ -35,11 +35,11 @@ The HTC Vive positioning tag requires a udev rule on the **host** machine. Docke
 udev rules at runtime, so this must be done before starting the container.
 
 ```bash
-# Build the image first
-docker build -t pika-ros .
+# Pull the image first (recommended)
+docker pull jshyunbin/pika-ros
 
 # Extract the udev rule from the image and install it on the host
-docker run --rm pika-ros cat /etc/udev/rules.d/81-vive.rules \
+docker run --rm jshyunbin/pika-ros cat /etc/udev/rules.d/81-vive.rules \
     | sudo tee /etc/udev/rules.d/81-vive.rules
 
 # Reload udev rules
@@ -48,14 +48,22 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 # Replug the USB wireless receiver after applying the rules
 ```
 
-## Building the Image
+## Getting the Image
+
+### Recommended: Pull from Docker Hub
 
 ```bash
-docker build -t pika-ros .
+docker pull jshyunbin/pika-ros
 ```
 
-The build clones `pika_ros`, builds librealsense 2.50.0 from source, and unpacks the pre-built
-`pika_ros` install tree. It takes roughly 10–20 minutes the first time.
+### Alternative: Build from source
+
+The build clones `pika_ros`, builds librealsense from source, and unpacks the pre-built
+`pika_ros` install tree. It takes roughly 10–20 minutes.
+
+```bash
+docker build -t jshyunbin/pika-ros .
+```
 
 ## Running the Container
 
@@ -65,7 +73,7 @@ docker run -it --rm \
     --network host \
     -v /dev:/dev \
     -v $(pwd)/data:/home/agilex/data \
-    pika-ros
+    jshyunbin/pika-ros
 ```
 
 - `--privileged` and `-v /dev:/dev` are required for USB device access (depth camera, fisheye camera, Vive receiver, serial port).
