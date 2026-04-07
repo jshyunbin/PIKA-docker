@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y \
     udev \
     ros-noetic-cv-bridge \
     ros-noetic-rviz \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install opencv-python
