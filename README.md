@@ -146,20 +146,22 @@ transform is stable and free of jitter before collecting data. Recalibrate if ji
 
 ### 3. Collect data
 
-**Single gripper:**
+**Single Pika Sense:**
 
 ```bash
 source ~/pika_ros/install/setup.bash
 roslaunch data_tools run_data_capture.launch \
+    type:=single_pika \
     datasetDir:=/home/agilex/data \
     episodeIndex:=0
 ```
 
-**Dual grippers:**
+**Dual Pika Sense:**
 
 ```bash
 source ~/pika_ros/install/setup.bash
-roslaunch data_tools run_multi_data_capture.launch \
+roslaunch data_tools run_data_capture.launch \
+    type:=multi_pika \
     datasetDir:=/home/agilex/data \
     episodeIndex:=0
 ```
