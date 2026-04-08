@@ -62,9 +62,15 @@ RUN ln -sf /usr/local/lib/librealsense2.so.2.55 /usr/local/lib/librealsense2.so.
 # Extract the pre-built pika_ros install tree (manual §2.4, step 6)
 WORKDIR /root/pika_ros/source
 RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/ && \
-    sed -i '/udevadm\|sensor_serial\.rules\|sensor_fisheye\.rules\|gripper_serial\.rules\|gripper_fisheye\.rules/d' \
-        /root/pika_ros/install/share/sensor_tools/scripts/start_single_sensor.bash \
-        /root/pika_ros/install/share/sensor_tools/scripts/start_single_gripper.bash
+    SCRIPTS=/root/pika_ros/install/share/sensor_tools/scripts && \
+    sed -i \
+        '/udevadm\|sensor_serial\.rules\|sensor_fisheye\.rules\|gripper_serial\.rules\|gripper_fisheye\.rules/d' \
+        $SCRIPTS/start_single_sensor.bash $SCRIPTS/start_single_gripper.bash && \
+    sed -i \
+        's|cd \$SCRIPT_DIR/\.\./install/share/sensor_tools/scripts|cd $SCRIPT_DIR|g; s|source \$SCRIPT_DIR/\.\./install/setup\.bash|source /root/pika_ros/install/setup.bash|g' \
+        $SCRIPTS/start_single_sensor.bash $SCRIPTS/start_single_gripper.bash \
+        $SCRIPTS/start_multi_sensor.bash $SCRIPTS/start_multi_gripper.bash \
+        $SCRIPTS/start_sensor_gripper.bash
 
 # Create libsurvive config directory so calibration persists within the container
 RUN mkdir -p /root/.config/libsurvive
