@@ -59,7 +59,10 @@ RUN ln -s /usr/local/lib/librealsense2.so.2.55.1 /usr/local/lib/librealsense2.so
 
 # Extract the pre-built pika_ros install tree (manual §2.4, step 6)
 WORKDIR /root/pika_ros/source
-RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/
+RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/ && \
+    sed -i '/udevadm\|sensor_serial\.rules\|sensor_fisheye\.rules\|gripper_serial\.rules\|gripper_fisheye\.rules/d' \
+        /root/pika_ros/install/share/sensor_tools/scripts/start_single_sensor.bash \
+        /root/pika_ros/install/share/sensor_tools/scripts/start_single_gripper.bash
 
 # Source ROS environments on login (manual §2.4, step 7)
 RUN echo 'source /opt/ros/noetic/setup.bash' >> /root/.bashrc && \
