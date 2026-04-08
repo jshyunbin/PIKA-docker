@@ -1,6 +1,7 @@
 FROM ros:noetic-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Install dependencies (manual §2.4, step 3)
 RUN apt-get update && apt-get install -y \
