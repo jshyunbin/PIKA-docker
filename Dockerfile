@@ -55,7 +55,7 @@ RUN bash install.bash
 
 # The pre-built realsense2_camera nodelet in install.zip was compiled against librealsense 2.50.
 # Create a symlink so it can find the 2.55.1 library built above.
-RUN ln -s /usr/local/lib/librealsense2.so.2.55.1 /usr/local/lib/librealsense2.so.2.50 && ldconfig
+RUN ln -sf /usr/local/lib/librealsense2.so.2.55 /usr/local/lib/librealsense2.so.2.50 && ldconfig
 
 # Extract the pre-built pika_ros install tree (manual §2.4, step 6)
 WORKDIR /root/pika_ros/source
