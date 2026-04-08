@@ -2,6 +2,7 @@ FROM ros:noetic-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV LIBGL_ALWAYS_SOFTWARE=1
 
 # Install dependencies (manual §2.4, step 3)
 RUN apt-get update && apt-get install -y \
@@ -64,6 +65,9 @@ RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/
     sed -i '/udevadm\|sensor_serial\.rules\|sensor_fisheye\.rules\|gripper_serial\.rules\|gripper_fisheye\.rules/d' \
         /root/pika_ros/install/share/sensor_tools/scripts/start_single_sensor.bash \
         /root/pika_ros/install/share/sensor_tools/scripts/start_single_gripper.bash
+
+# Create libsurvive config directory so calibration persists within the container
+RUN mkdir -p /root/.config/libsurvive
 
 # Source ROS environments on login (manual §2.4, step 7)
 RUN echo 'source /opt/ros/noetic/setup.bash' >> /root/.bashrc && \
