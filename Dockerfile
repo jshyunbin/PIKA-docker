@@ -31,7 +31,6 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     libopenvr-dev \
     unzip \
-    udev \
     ros-noetic-cv-bridge \
     ros-noetic-rviz \
     vim \
@@ -41,13 +40,7 @@ RUN pip3 install opencv-python
 
 # Clone pika_ros (manual §2.4, step 2)
 WORKDIR /root
-RUN git clone https://github.com/agilexrobotics/pika_ros.git
-
-# Install USB udev rules (manual §2.4, step 4)
-# udevadm reload cannot run during Docker build; apply on the host before running the container:
-#   sudo cp pika_ros/scripts/81-vive.rules /etc/udev/rules.d/
-#   sudo udevadm control --reload-rules && sudo udevadm trigger
-RUN mkdir -p /etc/udev/rules.d/ && cp /root/pika_ros/scripts/81-vive.rules /etc/udev/rules.d/
+RUN git clone https://github.com/jshyunbin/pika_ros.git
 
 # Build librealsense 2.55.1 from source bundled in pika_ros/source/ (manual §2.4, step 5)
 WORKDIR /root/pika_ros/source
@@ -66,7 +59,10 @@ RUN ln -s /usr/local/lib/librealsense2.so.2.55.1 /usr/local/lib/librealsense2.so
 
 # Extract the pre-built pika_ros install tree (manual §2.4, step 6)
 WORKDIR /root/pika_ros/source
-RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/
+RUN unzip install.zip -d /root/pika_ros/ && chmod 777 -R /root/pika_ros/install/ && \
+    sed -i '/udevadm\|sensor_serial\.rules\|sensor_fisheye\.rules\|gripper_serial\.rules\|gripper_fisheye\.rules/d' \
+        /root/pika_ros/install/share/sensor_tools/scripts/start_single_sensor.bash \
+        /root/pika_ros/install/share/sensor_tools/scripts/start_single_gripper.bash
 
 # Source ROS environments on login (manual §2.4, step 7)
 RUN echo 'source /opt/ros/noetic/setup.bash' >> /root/.bashrc && \

@@ -31,28 +31,29 @@ collection system for embodied intelligence research, consisting of:
 
 ## Host Setup (one-time)
 
-The HTC Vive positioning tag requires a udev rule on the **host** machine. Docker cannot apply
-udev rules at runtime, so this must be done before starting the container.
+Docker cannot apply udev rules at runtime. Device symlinks like `/dev/ttyUSB50` must be
+created on the **host** before starting the container. This repo includes `setup_host.sh`
+to handle this in one step.
 
 ```bash
-# Pull the image first (recommended)
-docker pull jshyunbin/pika-ros
+# Clone this repo
+git clone https://github.com/jshyunbin/PIKA-docker.git
+cd PIKA-docker
 
-# Extract the udev rule from the image and install it on the host
-docker run --rm jshyunbin/pika-ros cat /etc/udev/rules.d/81-vive.rules \
-    | sudo tee /etc/udev/rules.d/81-vive.rules
+# Run the host setup for your configuration:
+#   single_sensor   — one Pika Sense (ttyUSB50, video50)
+#   single_gripper  — one Pika Gripper (ttyUSB60, video60)
+#   multi_sensor    — two Pika Sense units (ttyUSB50/51, video50/51)
+#   multi_gripper   — two Pika Grippers (ttyUSB60/61, video60/61)
+#   sensor_gripper  — one Pika Sense + one Pika Gripper (ttyUSB50/60, video50/60)
+sudo bash setup_host.sh single_sensor
 
-# Install the serial port udev rule (creates /dev/ttyUSB50 symlink for the Pika serial device)
-sudo sh -c 'echo "KERNEL==\"ttyUSB*\", ATTRS{idVendor}==\"1a86\", ATTRS{idProduct}==\"7522\", MODE:=\"0777\", SYMLINK+=\"ttyUSB50\"" > /etc/udev/rules.d/sensor_serial.rules'
-
-# Install the fisheye camera udev rule (creates /dev/video50 symlink for the Pika fisheye camera)
-sudo sh -c 'echo "KERNEL==\"video*\", ATTRS{idVendor}==\"1bcf\", ATTRS{idProduct}==\"2cd1\", MODE:=\"0777\", SYMLINK+=\"video50\"" > /etc/udev/rules.d/sensor_fisheye.rules'
-
-# Reload udev rules
-sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
-
-# Replug all USB devices after applying the rules
+# Replug all USB devices after the script completes
 ```
+
+> **Note:** `multi_*` and `sensor_gripper` modes use USB hub port positions (kernel paths)
+> to distinguish between units. If the symlinks don't appear after replug, check that your
+> USB hub layout matches the paths in `scripts/setup_multi_*.bash` and adjust if needed.
 
 ## Getting the Image
 
