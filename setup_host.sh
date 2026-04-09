@@ -23,14 +23,14 @@ case "$MODE" in
     single_sensor)
         echo 'KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7522", MODE:="0777", SYMLINK+="ttyUSB50"' \
             > /etc/udev/rules.d/sensor_serial.rules
-        echo 'KERNEL=="video*", ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2cd1", MODE:="0777", SYMLINK+="video50"' \
+        echo 'KERNEL=="video*", ENV{ID_USB_INTERFACE_NUM}=="00", ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2cd1", MODE:="0777", SYMLINK+="video50"' \
             > /etc/udev/rules.d/sensor_fisheye.rules
         echo "Installed single sensor rules (ttyUSB50, video50)"
         ;;
     single_gripper)
         echo 'KERNEL=="ttyUSB*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7522", MODE:="0777", SYMLINK+="ttyUSB60"' \
             > /etc/udev/rules.d/gripper_serial.rules
-        echo 'KERNEL=="video*", ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2cd1", MODE:="0777", SYMLINK+="video60"' \
+        echo 'KERNEL=="video*", ENV{ID_USB_INTERFACE_NUM}=="00", ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2cd1", MODE:="0777", SYMLINK+="video60"' \
             > /etc/udev/rules.d/gripper_fisheye.rules
         echo "Installed single gripper rules (ttyUSB60, video60)"
         ;;
