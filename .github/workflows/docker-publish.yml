@@ -6,11 +6,15 @@ on:
     paths-ignore:
       - 'README.md'
       - '*.pdf'
+      - 'setup_host.sh'
+      - 'scripts/**'
   pull_request:
     branches: [main]
     paths-ignore:
       - 'README.md'
       - '*.pdf'
+      - 'setup_host.sh'
+      - 'scripts/**'
 
 jobs:
   build-and-push:
