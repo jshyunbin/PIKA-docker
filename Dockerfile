@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install opencv-python
+RUN pip3 install opencv-python h5py scipy
 
 # Clone pika_ros (manual §2.4, step 2)
 WORKDIR /root
