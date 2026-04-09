@@ -82,7 +82,7 @@ First, allow the container to connect to the host's X11 display (required for RV
 xhost +local:docker
 ```
 
-Then start the container:
+**Single Pika Sense:**
 
 ```bash
 docker run -it --rm \
@@ -95,10 +95,25 @@ docker run -it --rm \
     jshyunbin/pika-ros
 ```
 
+**Dual Pika Sense** (after filling in serial numbers in `config/start_multi_sensor.bash`):
+
+```bash
+docker run -it --rm \
+    --privileged \
+    --network host \
+    -v /dev:/dev \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$DISPLAY \
+    -v $(pwd)/data:/home/agilex/data \
+    -v $(pwd)/config/start_multi_sensor.bash:/root/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash \
+    jshyunbin/pika-ros
+```
+
 - `--privileged` and `-v /dev:/dev` are required for USB device access (depth camera, fisheye camera, Vive receiver, serial port).
 - `--network host` allows ROS communication with nodes on the host or other machines.
 - `-v /tmp/.X11-unix:/tmp/.X11-unix` and `-e DISPLAY=$DISPLAY` forward the host display so RViz can render.
 - `-v $(pwd)/data:/home/agilex/data` mounts a local directory for saving collected datasets.
+- `-v $(pwd)/config/start_multi_sensor.bash:...` mounts the pre-configured launch script so serial numbers persist across container restarts.
 
 ## Usage Workflow
 
@@ -238,16 +253,24 @@ Then run `sudo bash setup_host.sh <mode>` and replug all devices.
 
 ### Step 4 — Configure depth camera left/right assignment
 
-For `start_multi_sensor.bash` to record data from the correct hands, it needs the
-RealSense serial numbers for each unit. With only one device connected:
+For `start_multi_sensor.bash` to record which hand is left and which is right, it needs
+the RealSense serial numbers for each unit. With only one device connected:
 
 ```bash
 rs-enumerate-devices | grep "Serial Number"
 ```
 
-Note the serial number, repeat for the other device. Then inside the container, edit
-`~/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash` and fill in
-`l_depth_camera_no` and `r_depth_camera_no` with the respective serial numbers.
+Note the serial number, unplug, connect the other device, repeat.
+
+Then edit `config/start_multi_sensor.bash` in this repo and replace the two `CHANGE_ME` values:
+
+```bash
+l_depth_camera_no=230322273424   # ← your left RealSense serial
+r_depth_camera_no=230322270988   # ← your right RealSense serial
+```
+
+This file is mounted into the container at runtime (see [Running the Container](#running-the-container)),
+so changes here take effect immediately without rebuilding the image.
 
 ## Troubleshooting
 

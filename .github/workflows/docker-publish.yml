@@ -8,6 +8,7 @@ on:
       - '*.pdf'
       - 'setup_host.sh'
       - 'scripts/**'
+      - 'config/**'
   pull_request:
     branches: [main]
     paths-ignore:
@@ -15,6 +16,7 @@ on:
       - '*.pdf'
       - 'setup_host.sh'
       - 'scripts/**'
+      - 'config/**'
 
 jobs:
   build-and-push:
