@@ -52,8 +52,10 @@ sudo bash setup_host.sh single_sensor
 ```
 
 > **Note:** `multi_*` and `sensor_gripper` modes use USB hub port positions (kernel paths)
-> to distinguish between units. If the symlinks don't appear after replug, check that your
-> USB hub layout matches the paths in `scripts/setup_multi_*.bash` and adjust if needed.
+> to distinguish between units. The default kernel paths in `scripts/setup_multi_*.bash`
+> are Agilex reference values and **will not match most machines**. Follow the
+> [Multi-device USB configuration](#multi-device-usb-configuration) section below before
+> running these modes.
 
 ## Getting the Image
 
@@ -177,6 +179,75 @@ Press **Enter** to end the collection. Data is saved under `datasetDir/episode<N
 | `localization/pose/pikaLocator/` | `.json` | 6-DOF pose (x, y, z, roll, pitch, yaw) |
 | `gripper/encoder/pika/` | `.json` | Gripper motor angle and distance |
 | `imu/9axis/pika/` | `.json` | IMU angular velocity, acceleration, orientation |
+
+## Multi-device USB configuration
+
+When using two Pika units (`multi_sensor`, `multi_gripper`, or `sensor_gripper` mode), udev
+must distinguish them by their USB hub port position (kernel path). These paths are
+machine-specific — you must discover them before running `setup_host.sh`.
+
+Do this once, with devices connected one at a time.
+
+### Step 1 — Find the serial port kernel path
+
+Connect **only** the first device (left sensor or left gripper). Then:
+
+```bash
+cd /dev && ls | grep ttyUSB           # e.g. ttyUSB0
+udevadm info /dev/ttyUSB0             # look for the KERNELS line
+```
+
+In the output, find a line like:
+```
+E: ID_PATH_TAG=pci-0000_00_14.0-usb-0_6.4_1.0
+```
+or a `P:` path like `/devices/.../usb1/1-6/1-6.4/1-6.4:1.0/...` — the kernel path is
+the last component before `/tty/`, e.g. **`1-6.4:1.0`**.
+
+Unplug the first device, connect only the second, and repeat to get the second kernel path.
+
+### Step 2 — Find the fisheye camera kernel path
+
+With only one device connected:
+
+```bash
+for dev in /dev/video*; do
+  echo "=== $dev ==="; udevadm info $dev | grep -E 'KERNELS|ID_VENDOR_ID|ID_MODEL_ID'
+done
+```
+
+Find the entry with `ID_VENDOR_ID=1bcf` and `ID_MODEL_ID=2cd1` — that is the fisheye
+camera. Note its `KERNELS` value (e.g. `1-6.3:1.0`). Repeat for the second device.
+
+### Step 3 — Edit the setup script
+
+Open the relevant script and replace the four KERNELS variables at the top:
+
+```bash
+# For two sensors:
+nano scripts/setup_multi_sensor.bash
+
+# For two grippers:
+nano scripts/setup_multi_gripper.bash
+
+# For one sensor + one gripper:
+nano scripts/setup_sensor_gripper.bash
+```
+
+Then run `sudo bash setup_host.sh <mode>` and replug all devices.
+
+### Step 4 — Configure depth camera left/right assignment
+
+For `start_multi_sensor.bash` to record data from the correct hands, it needs the
+RealSense serial numbers for each unit. With only one device connected:
+
+```bash
+rs-enumerate-devices | grep "Serial Number"
+```
+
+Note the serial number, repeat for the other device. Then inside the container, edit
+`~/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash` and fill in
+`l_depth_camera_no` and `r_depth_camera_no` with the respective serial numbers.
 
 ## Troubleshooting
 
