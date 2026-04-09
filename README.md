@@ -187,13 +187,36 @@ Press **Enter** to end the collection. Data is saved under `datasetDir/episode<N
 
 | Path | Format | Contents |
 |---|---|---|
-| `camera/color/pikaDepthCamera/` | `.png` | RGB frames from depth camera |
-| `camera/color/fisheye/` | `.png` | Fisheye camera RGB frames |
+| `camera/color/pikaDepthCamera/` | `.jpg` | RGB frames from depth camera |
+| `camera/color/pikaFisheyeCamera/` | `.jpg` | Fisheye camera frames |
 | `camera/depth/pikaDepthCamera/` | `.png` | Depth frames |
-| `camera/pointCloud/pikaDepthCamera/` | `.pcd` | Point clouds |
-| `localization/pose/pikaLocator/` | `.json` | 6-DOF pose (x, y, z, roll, pitch, yaw) |
+| `localization/pose/pika/` | `.json` | 6-DOF pose (x, y, z, roll, pitch, yaw) |
 | `gripper/encoder/pika/` | `.json` | Gripper motor angle and distance |
-| `imu/9axis/pika/` | `.json` | IMU angular velocity, acceleration, orientation |
+
+### 4. Sync data
+
+**Single Pika Sense:**
+
+```bash
+source ~/pika_ros/install/setup.bash
+roslaunch data_tools run_data_sync.launch \
+    type:=single_pika \
+    datasetDir:=/home/agilex/data \
+    episodeIndex:=1
+```
+
+**Dual Pika Sense:**
+
+```bash
+source ~/pika_ros/install/setup.bash
+roslaunch data_tools run_data_sync.launch \
+    type:=multi_pika \
+    datasetDir:=/home/agilex/data \
+    episodeIndex:=2
+```
+
+> **Note:** Always pass `type:=single_pika` or `type:=multi_pika`. The default is `aloha`
+> which looks for different directory names and will immediately crash.
 
 ## Multi-device USB configuration
 
