@@ -1,0 +1,15 @@
+# Dependencies for host-side data processing scripts
+numpy
+h5py
+opencv-python
+scipy
+pyyaml
+
+# data_to_hdf5.py, data_sync.py, load_data_example.py
+# (above packages are sufficient)
+
+# hdf5_to_lerobot.py additionally requires:
+torch
+tqdm
+tyro
+lerobot
