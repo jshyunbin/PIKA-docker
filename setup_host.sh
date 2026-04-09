@@ -53,6 +53,6 @@ case "$MODE" in
         ;;
 esac
 
-udevadm control --reload-rules && service udev restart && udevadm trigger
+udevadm control --reload-rules && service udev restart && udevadm trigger --action=add
 echo ""
 echo "Done. Replug all USB devices now."
