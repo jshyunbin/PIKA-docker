@@ -1,0 +1,10 @@
+# RealSense depth camera serial numbers.
+# Find yours with: rs-enumerate-devices | grep "Serial Number"
+# or using realsense-viewer (connect one device at a time).
+
+single:
+  depth_camera_serial: CHANGE_ME
+
+multi:
+  left_depth_camera_serial: CHANGE_ME
+  right_depth_camera_serial: CHANGE_ME

@@ -76,44 +76,21 @@ docker build -t jshyunbin/pika-ros .
 
 ## Running the Container
 
-First, allow the container to connect to the host's X11 display (required for RViz):
+First, edit `config/sensors.yaml` and fill in your RealSense depth camera serial numbers
+(find them with `rs-enumerate-devices | grep "Serial Number"` or realsense-viewer).
+
+Then start the container with:
 
 ```bash
-xhost +local:docker
+# Single Pika Sense
+bash start.sh single
+
+# Dual Pika Sense
+bash start.sh multi
 ```
 
-**Single Pika Sense:**
-
-```bash
-docker run -it --rm \
-    --privileged \
-    --network host \
-    -v /dev:/dev \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -e DISPLAY=$DISPLAY \
-    -v $(pwd)/data:/home/agilex/data \
-    jshyunbin/pika-ros
-```
-
-**Dual Pika Sense** (after filling in serial numbers in `config/start_multi_sensor.bash`):
-
-```bash
-docker run -it --rm \
-    --privileged \
-    --network host \
-    -v /dev:/dev \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -e DISPLAY=$DISPLAY \
-    -v $(pwd)/data:/home/agilex/data \
-    -v $(pwd)/config/start_multi_sensor.bash:/root/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash \
-    jshyunbin/pika-ros
-```
-
-- `--privileged` and `-v /dev:/dev` are required for USB device access (depth camera, fisheye camera, Vive receiver, serial port).
-- `--network host` allows ROS communication with nodes on the host or other machines.
-- `-v /tmp/.X11-unix:/tmp/.X11-unix` and `-e DISPLAY=$DISPLAY` forward the host display so RViz can render.
-- `-v $(pwd)/data:/home/agilex/data` mounts a local directory for saving collected datasets.
-- `-v $(pwd)/config/start_multi_sensor.bash:...` mounts the pre-configured launch script so serial numbers persist across container restarts.
+`start.sh` handles X11 setup, removes any existing container with the same name,
+injects serial numbers as environment variables, and mounts the correct config files.
 
 ## Usage Workflow
 

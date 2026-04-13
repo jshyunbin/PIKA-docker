@@ -1,8 +1,8 @@
 camera_fps=30
 camera_width=640
 camera_height=480
-l_depth_camera_no=CHANGE_ME   # left RealSense serial number  (rs-enumerate-devices | grep "Serial Number")
-r_depth_camera_no=CHANGE_ME   # right RealSense serial number
+l_depth_camera_no=${L_DEPTH_CAMERA_SERIAL:-CHANGE_ME}
+r_depth_camera_no=${R_DEPTH_CAMERA_SERIAL:-CHANGE_ME}
 
 l_serial_port=/dev/ttyUSB50
 r_serial_port=/dev/ttyUSB51
