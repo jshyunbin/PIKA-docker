@@ -1,10 +1,3 @@
-# PIKA sensor configuration
-# Edit this file, then run: sudo bash setup_host.sh <mode>
-# and restart the container with: bash start.sh [single|multi]
-
-# ── RealSense depth camera serial numbers ─────────────────────────────────────
-# Find with: rs-enumerate-devices | grep "Serial Number"
-# Connect one device at a time to identify left vs right.
 realsense:
   single:
     depth_camera_serial: CHANGE_ME
@@ -12,27 +5,12 @@ realsense:
     left_depth_camera_serial: CHANGE_ME
     right_depth_camera_serial: CHANGE_ME
 
-# ── USB kernel paths (multi-device modes only) ────────────────────────────────
-# These are physical USB port identifiers — machine-specific.
-# Find with (connect ONE device at a time):
-#
-#   Serial port kernel path:
-#     udevadm info /dev/ttyUSB0        # look for KERNELS in the P: path
-#
-#   Fisheye camera kernel path:
-#     for dev in /dev/video*; do
-#       echo "=== $dev ==="; udevadm info $dev | grep -E 'KERNELS|ID_VENDOR_ID|ID_MODEL_ID'
-#     done
-#     # Find the entry with ID_VENDOR_ID=1bcf ID_MODEL_ID=2cd1
-#
-# See README "Multi-device USB configuration" for full step-by-step.
-
 usb_kernels:
   multi_sensor:
-    left_serial:   1-4.4:1.0   # left sensor  ttyUSB serial port
-    right_serial:  1-3.4:1.0   # right sensor ttyUSB serial port
-    left_fisheye:  1-4.3:1.0   # left sensor  fisheye camera
-    right_fisheye: 1-3.3:1.0   # right sensor fisheye camera
+    left_serial:   1-4.4:1.0
+    right_serial:  1-3.4:1.0
+    left_fisheye:  1-4.3:1.0
+    right_fisheye: 1-3.3:1.0
 
   multi_gripper:
     left_serial:   1-2.2.4:1.0
