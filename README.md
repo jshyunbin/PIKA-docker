@@ -26,9 +26,25 @@ collection system for embodied intelligence research, consisting of:
 ## Prerequisites
 
 - Docker (20.10+)
-- Pika Station base stations physically deployed and powered on (see §2.1 of the user manual)
-- Positioning tag paired with its USB wireless receiver via SteamVR (first-time setup only, see §2.2 of the user manual)
+- Pika Station base stations physically deployed and powered on 
+- Positioning tag paired with its USB wireless receiver via SteamVR 
 
+## Getting the Image
+
+### Recommended: Pull from Docker Hub
+
+```bash
+docker pull jshyunbin/pika-ros
+```
+
+### Alternative: Build from source
+
+The build clones `pika_ros`, builds librealsense from source, and unpacks the pre-built
+`pika_ros` install tree. It takes roughly 10–20 minutes.
+
+```bash
+docker build -t jshyunbin/pika-ros .
+```
 ## Host Setup (one-time)
 
 Docker cannot apply udev rules at runtime. Device symlinks like `/dev/ttyUSB50` must be
@@ -57,22 +73,6 @@ sudo bash setup_host.sh single_sensor
 > [Multi-device USB configuration](#multi-device-usb-configuration) section below before
 > running these modes.
 
-## Getting the Image
-
-### Recommended: Pull from Docker Hub
-
-```bash
-docker pull jshyunbin/pika-ros
-```
-
-### Alternative: Build from source
-
-The build clones `pika_ros`, builds librealsense from source, and unpacks the pre-built
-`pika_ros` install tree. It takes roughly 10–20 minutes.
-
-```bash
-docker build -t jshyunbin/pika-ros .
-```
 
 ## Running the Container
 
@@ -203,38 +203,29 @@ machine-specific — you must discover them before running `setup_host.sh`.
 
 Do this once, with devices connected one at a time.
 
-### Step 1 — Find the serial port kernel path
+### Step 1 — Find kernel paths with find_usb_kernel.bash
 
-Connect **only** the first device (left sensor or left gripper). Then:
-
-```bash
-cd /dev && ls | grep ttyUSB           # e.g. ttyUSB0
-udevadm info /dev/ttyUSB0             # look for the KERNELS line
-```
-
-In the output, find a line like:
-```
-E: ID_PATH_TAG=pci-0000_00_14.0-usb-0_6.4_1.0
-```
-or a `P:` path like `/devices/.../usb1/1-6/1-6.4/1-6.4:1.0/...` — the kernel path is
-the last component before `/tty/`, e.g. **`1-6.4:1.0`**.
-
-Unplug the first device, connect only the second, and repeat to get the second kernel path.
-
-### Step 2 — Find the fisheye camera kernel path
-
-With only one device connected:
+Connect **only** the first device (left sensor or left gripper), then run:
 
 ```bash
-for dev in /dev/video*; do
-  echo "=== $dev ==="; udevadm info $dev | grep -E 'KERNELS|ID_VENDOR_ID|ID_MODEL_ID'
-done
+bash scripts/find_usb_kernel.bash
 ```
 
-Find the entry with `ID_VENDOR_ID=1bcf` and `ID_MODEL_ID=2cd1` — that is the fisheye
-camera. Note its `KERNELS` value (e.g. `1-6.3:1.0`). Repeat for the second device.
+The script prints the kernel path for each connected ttyUSB and fisheye camera, for example:
 
-### Step 3 — Edit sensors.yaml
+```
+[1] Serial Port (ttyUSB)
+  Device : /dev/ttyUSB0
+  Address: 1-6.4
+
+[2] Fisheye Camera
+  Device : /dev/video7
+  Address: 1-6.3
+```
+
+Note the addresses. Unplug the first device, connect only the second, and run the script again.
+
+### Step 2 — Edit sensors.yaml
 
 Open `config/sensors.yaml` and fill in the four kernel values under the relevant mode:
 
@@ -249,7 +240,7 @@ usb_kernels:
 
 Then run `sudo bash setup_host.sh <mode>` and replug all devices.
 
-### Step 4 — Configure depth camera left/right assignment
+### Step 3 — Configure depth camera left/right assignment
 
 For `start_multi_sensor.bash` to record which hand is left and which is right, it needs
 the RealSense serial numbers for each unit. With only one device connected:
