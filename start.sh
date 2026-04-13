@@ -43,7 +43,7 @@ xhost +local:docker
 
 # Build docker run arguments
 DOCKER_ARGS=(
-    -it --rm
+    -it
     --name "$CONTAINER_NAME"
     --privileged
     --network host
