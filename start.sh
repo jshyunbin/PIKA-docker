@@ -59,9 +59,19 @@ else
     DOCKER_ARGS+=(
         -e L_DEPTH_CAMERA_SERIAL="$L_SN"
         -e R_DEPTH_CAMERA_SERIAL="$R_SN"
-        -v "$SCRIPT_DIR/config/start_multi_sensor.bash:/root/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash"
     )
 fi
 
 echo "Starting container in $MODE mode..."
-docker run "${DOCKER_ARGS[@]}" "$IMAGE"
+
+SCRIPT_PATH=/root/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash
+
+if [ "$MODE" = "multi" ]; then
+    docker run "${DOCKER_ARGS[@]}" "$IMAGE" bash -c "
+        sed -i 's/^l_depth_camera_no=.*/l_depth_camera_no=${L_SN}/' $SCRIPT_PATH &&
+        sed -i 's/^r_depth_camera_no=.*/r_depth_camera_no=${R_SN}/' $SCRIPT_PATH &&
+        exec bash
+    "
+else
+    docker run "${DOCKER_ARGS[@]}" "$IMAGE"
+fi
