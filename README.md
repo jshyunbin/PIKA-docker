@@ -234,19 +234,17 @@ done
 Find the entry with `ID_VENDOR_ID=1bcf` and `ID_MODEL_ID=2cd1` — that is the fisheye
 camera. Note its `KERNELS` value (e.g. `1-6.3:1.0`). Repeat for the second device.
 
-### Step 3 — Edit the setup script
+### Step 3 — Edit sensors.yaml
 
-Open the relevant script and replace the four KERNELS variables at the top:
+Open `config/sensors.yaml` and fill in the four kernel values under the relevant mode:
 
-```bash
-# For two sensors:
-nano scripts/setup_multi_sensor.bash
-
-# For two grippers:
-nano scripts/setup_multi_gripper.bash
-
-# For one sensor + one gripper:
-nano scripts/setup_sensor_gripper.bash
+```yaml
+usb_kernels:
+  multi_sensor:
+    left_serial:   1-6.4:1.0   # ← your value from Step 1 (left)
+    right_serial:  1-5.4:1.0   # ← your value from Step 1 (right)
+    left_fisheye:  1-6.3:1.0   # ← your value from Step 2 (left)
+    right_fisheye: 1-5.3:1.0   # ← your value from Step 2 (right)
 ```
 
 Then run `sudo bash setup_host.sh <mode>` and replug all devices.

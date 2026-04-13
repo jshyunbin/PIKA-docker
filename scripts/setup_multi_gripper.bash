@@ -1,34 +1,25 @@
 #!/bin/bash
 # HOST-ONLY: Run this on the host machine, not inside Docker.
 # Maps two Pika Gripper units to fixed device paths using USB hub port positions.
-#
-# IMPORTANT: The KERNELS values below are machine-specific. You MUST determine
-# the correct values for your USB hub layout before running this script.
-# See the README "Multi-device USB configuration" section for the full procedure.
-#
-# Summary of how to find your kernel paths:
-#
-# Step 1 — Serial port (ttyUSB) kernel path:
-#   Connect ONLY the left gripper. Then:
-#     cd /dev && ls | grep ttyUSB        # e.g. ttyUSB0
-#     udevadm info /dev/ttyUSB0          # look for KERNELS line, e.g. 1-6.4:1.0
-#   Repeat with ONLY the right gripper connected to get its kernel path.
-#
-# Step 2 — Fisheye camera (video) kernel path:
-#   With ONLY the left gripper connected:
-#     for dev in /dev/video*; do echo "$dev:"; udevadm info $dev | grep -E 'KERNELS|ID_VENDOR_ID|ID_MODEL_ID'; echo; done
-#   Find the entry with ID_VENDOR_ID=1bcf and ID_MODEL_ID=2cd1. That KERNELS value
-#   is the fisheye camera kernel path (e.g. 1-6.3:1.0).
-#   Repeat for the right gripper.
-#
-# Fill in the four KERNELS values below, then run: sudo bash setup_host.sh multi_gripper
+# Reads kernel paths from config/sensors.yaml — edit that file, not this one.
 
-# ── Edit these four values ────────────────────────────────────────────────────
-L_SERIAL_KERNELS="1-2.2.4:1.0"  # left gripper serial port  (from udevadm info /dev/ttyUSBX)
-R_SERIAL_KERNELS="1-2.1.4:1.0"  # right gripper serial port
-L_FISHEYE_KERNELS="1-2.2.3:1.0" # left gripper fisheye camera
-R_FISHEYE_KERNELS="1-2.1.3:1.0" # right gripper fisheye camera
-# ─────────────────────────────────────────────────────────────────────────────
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+YAML="$SCRIPT_DIR/../config/sensors.yaml"
+
+parse() {
+    python3 -c "import yaml; d=yaml.safe_load(open('$YAML')); print(d['usb_kernels']['multi_gripper']['$1'])"
+}
+
+L_SERIAL_KERNELS=$(parse left_serial)
+R_SERIAL_KERNELS=$(parse right_serial)
+L_FISHEYE_KERNELS=$(parse left_fisheye)
+R_FISHEYE_KERNELS=$(parse right_fisheye)
+
+echo "multi_gripper kernels:"
+echo "  left  serial:  $L_SERIAL_KERNELS"
+echo "  right serial:  $R_SERIAL_KERNELS"
+echo "  left  fisheye: $L_FISHEYE_KERNELS"
+echo "  right fisheye: $R_FISHEYE_KERNELS"
 
 cat > /etc/udev/rules.d/gripper_serial.rules <<EOF
 ACTION=="add", KERNELS=="$L_SERIAL_KERNELS", SUBSYSTEMS=="usb", MODE:="0777", SYMLINK+="ttyUSB60"

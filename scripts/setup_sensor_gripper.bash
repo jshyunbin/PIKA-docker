@@ -1,35 +1,25 @@
 #!/bin/bash
 # HOST-ONLY: Run this on the host machine, not inside Docker.
-# Maps one Pika Sense (ttyUSB50/video50) and one Pika Gripper (ttyUSB60/video60)
-# using USB hub port positions.
-#
-# IMPORTANT: The KERNELS values below are machine-specific. You MUST determine
-# the correct values for your USB hub layout before running this script.
-# See the README "Multi-device USB configuration" section for the full procedure.
-#
-# Summary of how to find your kernel paths:
-#
-# Step 1 — Serial port (ttyUSB) kernel path:
-#   Connect ONLY the sensor (or only the gripper). Then:
-#     cd /dev && ls | grep ttyUSB        # e.g. ttyUSB0
-#     udevadm info /dev/ttyUSB0          # look for KERNELS line, e.g. 1-6.4:1.0
-#   Repeat with ONLY the other device connected.
-#
-# Step 2 — Fisheye camera (video) kernel path:
-#   With ONLY the sensor (or gripper) connected:
-#     for dev in /dev/video*; do echo "$dev:"; udevadm info $dev | grep -E 'KERNELS|ID_VENDOR_ID|ID_MODEL_ID'; echo; done
-#   Find the entry with ID_VENDOR_ID=1bcf and ID_MODEL_ID=2cd1. That KERNELS value
-#   is the fisheye camera kernel path (e.g. 1-6.3:1.0).
-#   Repeat for the other device.
-#
-# Fill in the four KERNELS values below, then run: sudo bash setup_host.sh sensor_gripper
+# Maps one Pika Sense (ttyUSB50/video50) and one Pika Gripper (ttyUSB60/video60).
+# Reads kernel paths from config/sensors.yaml — edit that file, not this one.
 
-# ── Edit these four values ────────────────────────────────────────────────────
-SENSOR_SERIAL_KERNELS="1-4.4:1.0"   # sensor serial port    (from udevadm info /dev/ttyUSBX)
-GRIPPER_SERIAL_KERNELS="1-2.4:1.0"  # gripper serial port
-SENSOR_FISHEYE_KERNELS="1-4.3:1.0"  # sensor fisheye camera
-GRIPPER_FISHEYE_KERNELS="1-2.3:1.0" # gripper fisheye camera
-# ─────────────────────────────────────────────────────────────────────────────
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+YAML="$SCRIPT_DIR/../config/sensors.yaml"
+
+parse() {
+    python3 -c "import yaml; d=yaml.safe_load(open('$YAML')); print(d['usb_kernels']['sensor_gripper']['$1'])"
+}
+
+SENSOR_SERIAL_KERNELS=$(parse sensor_serial)
+GRIPPER_SERIAL_KERNELS=$(parse gripper_serial)
+SENSOR_FISHEYE_KERNELS=$(parse sensor_fisheye)
+GRIPPER_FISHEYE_KERNELS=$(parse gripper_fisheye)
+
+echo "sensor_gripper kernels:"
+echo "  sensor  serial:  $SENSOR_SERIAL_KERNELS"
+echo "  gripper serial:  $GRIPPER_SERIAL_KERNELS"
+echo "  sensor  fisheye: $SENSOR_FISHEYE_KERNELS"
+echo "  gripper fisheye: $GRIPPER_FISHEYE_KERNELS"
 
 cat > /etc/udev/rules.d/sensor_serial.rules <<EOF
 ACTION=="add", KERNELS=="$SENSOR_SERIAL_KERNELS", SUBSYSTEMS=="usb", MODE:="0777", SYMLINK+="ttyUSB50"

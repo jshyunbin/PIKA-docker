@@ -23,15 +23,15 @@ if [ ! -f "$SENSORS_YAML" ]; then
 fi
 
 if [ "$MODE" = "single" ]; then
-    DEPTH_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['single']['depth_camera_serial'])")
+    DEPTH_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['realsense']['single']['depth_camera_serial'])")
     if [ "$DEPTH_SN" = "CHANGE_ME" ]; then
-        echo "Warning: depth_camera_serial is not set in config/sensors.yaml"
+        echo "Warning: realsense.single.depth_camera_serial is not set in config/sensors.yaml"
     fi
 else
-    L_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['multi']['left_depth_camera_serial'])")
-    R_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['multi']['right_depth_camera_serial'])")
+    L_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['realsense']['multi']['left_depth_camera_serial'])")
+    R_SN=$(python3 -c "import yaml; d=yaml.safe_load(open('$SENSORS_YAML')); print(d['realsense']['multi']['right_depth_camera_serial'])")
     if [ "$L_SN" = "CHANGE_ME" ] || [ "$R_SN" = "CHANGE_ME" ]; then
-        echo "Warning: one or more serial numbers are not set in config/sensors.yaml"
+        echo "Warning: one or more realsense serial numbers are not set in config/sensors.yaml"
     fi
 fi
 
