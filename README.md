@@ -162,3 +162,7 @@ python3 multi_data_to_hdf5.py --datasetDir $HOME/agilex/data/ # double grippers
 | `error failures` not 0 | Remove infrared sources (sunlight); check base station FOV |
 | TF jitter during use | Recalibrate: `cd ~/pika_ros/install/lib && ./survive-cli --force-calibrate` |
 | RealSense not detected | Run `rs-enumerate-devices` inside container |
+
+## Acknowledgement
+
+- `scripts/find_usb_kernel.bash` code from [JHyoonirl/pika_ros2](https://github.com/JHyoonirl/pika_ros2/blob/main/scripts/find_addr.bash)
