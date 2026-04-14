@@ -35,13 +35,23 @@ else
     fi
 fi
 
-# Remove any existing container with the same name
-docker rm -f "$CONTAINER_NAME" 2>/dev/null && echo "Removed existing container: $CONTAINER_NAME" || true
-
 # Allow Docker to connect to the host X11 display (required for RViz)
 xhost +local:docker
 
-# Build docker run arguments
+# Re-attach or start existing container if it exists
+if docker inspect "$CONTAINER_NAME" &>/dev/null; then
+    STATUS=$(docker inspect -f '{{.State.Status}}' "$CONTAINER_NAME")
+    if [ "$STATUS" = "running" ]; then
+        echo "Attaching to running container: $CONTAINER_NAME"
+        docker attach "$CONTAINER_NAME"
+    else
+        echo "Restarting existing container: $CONTAINER_NAME"
+        docker start -ai "$CONTAINER_NAME"
+    fi
+    exit 0
+fi
+
+# Build docker run arguments for a new container
 DOCKER_ARGS=(
     -it
     --name "$CONTAINER_NAME"
@@ -62,7 +72,7 @@ else
     )
 fi
 
-echo "Starting container in $MODE mode..."
+echo "Starting new container in $MODE mode..."
 
 SCRIPT_PATH=/root/pika_ros/install/share/sensor_tools/scripts/start_multi_sensor.bash
 
