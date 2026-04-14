@@ -68,7 +68,32 @@ cd ~/pika_ros/install/lib && ./survive-cli --force-calibrate
 Wait for `seed runs` / `error failures 0`, then press **Ctrl+C**.
 If calibration stalls: `rm ~/.config/libsurvive/config.json` and retry.
 
-### 2. Launch the sensors
+
+### 2. Set L/R hand locators
+
+```bash
+roslaunch pika_locator get_code.launch
+```
+
+Identify left/right serial code and add it to `.bashrc`
+
+```bash
+echo 'export pika_L_code=LHR-EB902458' >> ~/.bashrc
+
+echo 'export pika_R_code=LHR-FE98B2BE' >> ~/.bashrc
+# or if the environment variables already exist edit it
+
+source ~/.bashrc
+```
+
+Now verify if they are aligned.
+```bash
+roslaunch pika_locator pika_double_tracker.launch
+```
+
+Now all trackers, cameras and sensors are aligned. 
+
+### 3. Launch the sensors
 
 ```bash
 cd ~/pika_ros/install/share/sensor_tools/scripts/
@@ -79,7 +104,7 @@ bash start_multi_sensor.bash    # dual
 
 Verify the TF frame in RViz is stable before collecting data.
 
-### 3. Collect data
+### 4. Collect data
 
 ```bash
 source ~/pika_ros/install/setup.bash
@@ -99,17 +124,34 @@ Press **Enter** to stop. Data is saved under `datasetDir/episode<N>/`:
 | `localization/pose/pika/` | `.json` | 6-DOF pose |
 | `gripper/encoder/pika/` | `.json` | Gripper encoder |
 
-### 4. Sync data
+### 5. Sync data
 
 ```bash
 source ~/pika_ros/install/setup.bash
 roslaunch data_tools run_data_sync.launch \
     type:=single_pika \        # or multi_pika
     datasetDir:=/home/agilex/data \
-    episodeIndex:=0
+    episodeIndex:=-1
 ```
 
 > Always pass `type:=single_pika` or `type:=multi_pika` — the default `aloha` will crash.
+
+### 6. Data conversion to HDF5
+
+Convert PCD data first.
+```bash
+cd ~/pika_ros/scripts
+
+python3 camera_point_cloud_filter.py --datasetDir $HOME/agilex/data/ # single gripper
+python3 multi_camera_point_cloud_filter.py --datasetDir $HOME/agilex/data/ # double grippers
+```
+
+Then convert to HDF5 format.
+```bash
+cd ~/pika_ros/scripts
+python3 data_to_hdf5.py --datasetDir $HOME/agilex/data/ # single gripper
+python3 multi_data_to_hdf5.py --datasetDir $HOME/agilex/data/ # double grippers
+```
 
 ## Troubleshooting
 
