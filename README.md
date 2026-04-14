@@ -124,10 +124,11 @@ Verify the TF frame in RViz is stable before collecting data.
 
 ```bash
 source ~/pika_ros/install/setup.bash
-roslaunch data_tools run_data_capture.launch \
-    type:=single_pika \        # or multi_pika
-    datasetDir:=/home/agilex/data \
-    episodeIndex:=0
+# single pika
+roslaunch data_tools run_data_capture.launch type:=single_pika datasetDir:=/home/agilex/data  episodeIndex:=0
+
+# multi pika
+roslaunch data_tools run_data_capture.launch type:=multi_pika datasetDir:=/home/agilex/data  episodeIndex:=0
 ```
 
 Press **Enter** to stop. Data is saved under `datasetDir/episode<N>/`:
@@ -144,10 +145,11 @@ Press **Enter** to stop. Data is saved under `datasetDir/episode<N>/`:
 
 ```bash
 source ~/pika_ros/install/setup.bash
-roslaunch data_tools run_data_sync.launch \
-    type:=single_pika \        # or multi_pika
-    datasetDir:=/home/agilex/data \
-    episodeIndex:=-1
+# single pika
+roslaunch data_tools run_data_sync.launch type:=single_pika datasetDir:=/home/agilex/data episodeIndex:=-1
+
+# multi pika
+roslaunch data_tools run_data_sync.launch type:=multi_pika datasetDir:=/home/agilex/data episodeIndex:=-1
 ```
 
 > Always pass `type:=single_pika` or `type:=multi_pika` — the default `aloha` will crash.
@@ -157,14 +159,21 @@ roslaunch data_tools run_data_sync.launch \
 Convert PCD data first.
 ```bash
 cd ~/pika_ros/scripts
+# single pika
+python3 camera_point_cloud_filter.py --datasetDir /home/agilex/data/ --type single_pika
 
-python3 camera_point_cloud_filter.py --datasetDir /home/agilex/data/ --type single_pika # or multi_pika
+# multi pika
+python3 camera_point_cloud_filter.py --datasetDir /home/agilex/data/ --type multi_pika 
 ```
 
 Then convert to HDF5 format.
 ```bash
 cd ~/pika_ros/scripts
-python3 data_to_hdf5.py --datasetDir /home/agilex/data/ --type single_pika # or multi_pika
+# single pika
+python3 data_to_hdf5.py --datasetDir /home/agilex/data/ --type single_pika
+
+# multi pika
+python3 data_to_hdf5.py --datasetDir /home/agilex/data/ --type multi_pika
 ```
 
 ## Troubleshooting
