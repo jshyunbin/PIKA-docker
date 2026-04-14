@@ -27,7 +27,7 @@ cd PIKA-docker
 ```
 
 Edit `config/sensors.yaml` with your machine-specific values:
-- **RealSense serial numbers** — find with `rs-enumerate-devices | grep "Serial Number"` or realsense-viewer
+- **RealSense serial numbers** — find with `realsense-viewer` and match left/right
 - **USB kernel paths** (multi-device modes only) — find with `bash scripts/find_usb_kernel.bash` (connect one device at a time)
 
 ### 2. Install host udev rules
@@ -54,6 +54,24 @@ docker pull jshyunbin/pika-ros
 bash start.sh single   # single Pika Sense
 bash start.sh multi    # dual Pika Sense
 ```
+
+Once the entire setup process is done, you can skip steps 1-3 next time you start the container. 
+
+## Running from previous container
+
+Once the initial setup is complete, most steps are persistent and can be skipped:
+
+**Normal session (everything already configured):**
+```bash
+bash start.sh [single|multi]   # reattaches to existing container
+```
+Then go straight to Usage §3 (launch sensors) → §4 (collect) → §5 (sync).
+
+**After moving a base station:** redo Usage §1 (recalibrate).
+**After swapping a USB device:** redo Setup §1 (update `sensors.yaml`) → §2 (reinstall udev rules), then recreate the container with `docker rm pika-ros && bash start.sh`.
+**After swapping a Vive tracker:** redo Usage §2 (reassign L/R codes).
+
+---
 
 ## Usage Workflow
 
@@ -86,14 +104,12 @@ echo 'export pika_R_code=LHR-FE98B2BE' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Now verify if they are aligned.
-```bash
-roslaunch pika_locator pika_double_tracker.launch
-```
 
 Now all trackers, cameras and sensors are aligned. 
 
 ### 3. Launch the sensors
+
+> ⚠️ You need a separate terminal running the below command for data collection
 
 ```bash
 cd ~/pika_ros/install/share/sensor_tools/scripts/
@@ -142,15 +158,13 @@ Convert PCD data first.
 ```bash
 cd ~/pika_ros/scripts
 
-python3 camera_point_cloud_filter.py --datasetDir $HOME/agilex/data/ # single gripper
-python3 multi_camera_point_cloud_filter.py --datasetDir $HOME/agilex/data/ # double grippers
+python3 camera_point_cloud_filter.py --datasetDir /home/agilex/data/ --type single_pika # or multi_pika
 ```
 
 Then convert to HDF5 format.
 ```bash
 cd ~/pika_ros/scripts
-python3 data_to_hdf5.py --datasetDir $HOME/agilex/data/ # single gripper
-python3 multi_data_to_hdf5.py --datasetDir $HOME/agilex/data/ # double grippers
+python3 data_to_hdf5.py --datasetDir /home/agilex/data/ --type single_pika # or multi_pika
 ```
 
 ## Troubleshooting
